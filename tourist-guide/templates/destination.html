@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ d['name'] }}{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endblock %}
+{% block content %}
+<div class="detail">
+  <div>
+    <span class="tag">{{ ICONS.get(d['category'], '') }} {{ d['category'] }}</span>
+    <h1>{{ d['name'] }}</h1>
+    <p class="muted">{{ d['city'] }}, {{ d['state'] }} · {% if avg %}⭐ {{ avg }}/5 ({{ reviews|length }} reviews){% else %}No ratings yet{% endif %}</p>
+    <p>{{ d['description'] }}</p>
+    <ul class="facts">
+      <li><b>Best time:</b> {{ d['best_time'] }}</li>
+      <li><b>Estimated budget:</b> ₹{{ '{:,}'.format(d['budget_per_day']|int) }} per person per day</li>
+    </ul>
+    <section class="budget-calculator">
+      <span class="eyebrow dark-eyebrow">TRIP COST ESTIMATOR</span>
+      <h2>Make the budget yours</h2>
+      <p class="muted">A planning estimate based on this destination's typical daily spend. Not a live quote.</p>
+      <div class="calculator-fields">
+        <label>Trip length (days)<input id="tripDays" type="number" min="1" max="60" value="3"></label>
+        <label>Travellers<input id="travellers" type="number" min="1" max="20" value="1"></label>
+        <label>Travel style<select id="travelStyle"><option value="0.7">Budget · 0.7×</option><option value="1" selected>Standard · 1×</option><option value="1.8">Premium · 1.8×</option></select></label>
+      </div>
+      <div class="estimate-box"><span>Estimated total for your group</span><strong id="estimateTotal">₹{{ '{:,}'.format((d['budget_per_day']|int * 3)) }}</strong><small id="estimatePerPerson">₹{{ '{:,}'.format((d['budget_per_day']|int * 3)) }} per person · 3 days</small></div>
+      <p class="fine-print">Excludes travel to and from the destination unless included in the daily estimate. Check current accommodation, transport and entry fees before booking.</p>
+    </section>
+    {% if g.user %}
+    <form method="post" action="{{ url_for('itinerary_add', did=d['id']) }}" class="inline">
+      <label>Add to Day
+        <input type="number" name="day" value="1" min="1" max="15" style="width:70px"></label>
+      <button class="btn">+ Add to itinerary</button>
+    </form>
+    {% else %}<p><a href="{{ url_for('login', next=request.path) }}">Log in</a> to add this to your itinerary.</p>{% endif %}
+  </div>
+  <div>
+    <div id="map"></div>
+    <a class="muted" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination={{ d['lat'] }},{{ d['lng'] }}">Get directions on Google Maps ↗</a>
+  </div>
+</div>
+
+<h2>Reviews</h2>
+{% if g.user %}
+<form method="post" action="{{ url_for('add_review', did=d['id']) }}" class="review-form">
+  <select name="kind">{% for k in REVIEW_KINDS %}<option>{{ k }}</option>{% endfor %}</select>
+  <select name="rating"><option value="">Rating</option>{% for i in [5,4,3,2,1] %}<option value="{{ i }}">{{ '⭐' * i }}</option>{% endfor %}</select>
+  <input name="comment" placeholder="Share your experience (hotel, food, place…)" maxlength="500" required>
+  <button class="btn">Post</button>
+</form>
+{% endif %}
+{% for r in reviews %}
+  <div class="review"><b>{{ r['name'] }}</b> <span class="tag">{{ r['kind'] }}</span> {{ '⭐' * r['rating'] }}
+    <p>{{ r['comment'] }}</p></div>
+{% else %}<p class="muted">Be the first to review this place.</p>{% endfor %}
+
+<script>
+  const baseDailyBudget = {{ d['budget_per_day']|int }};
+  const daysInput = document.getElementById('tripDays');
+  const travellersInput = document.getElementById('travellers');
+  const styleInput = document.getElementById('travelStyle');
+  const totalOutput = document.getElementById('estimateTotal');
+  const perPersonOutput = document.getElementById('estimatePerPerson');
+  const money = n => '₹' + Math.round(n).toLocaleString('en-IN');
+  function updateEstimate() {
+    const days = Math.min(60, Math.max(1, Number(daysInput.value) || 1));
+    const travellers = Math.min(20, Math.max(1, Number(travellersInput.value) || 1));
+    const multiplier = Number(styleInput.value) || 1;
+    const perPerson = baseDailyBudget * days * multiplier;
+    totalOutput.textContent = money(perPerson * travellers);
+    perPersonOutput.textContent = money(perPerson) + ' per person · ' + days + (days === 1 ? ' day' : ' days');
+  }
+  [daysInput, travellersInput, styleInput].forEach(el => el.addEventListener('input', updateEstimate));
+  updateEstimate();
+</script>
+<script>
+  var map = L.map('map').setView([{{ d['lat'] }}, {{ d['lng'] }}], 12);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OpenStreetMap'}).addTo(map);
+  L.marker([{{ d['lat'] }}, {{ d['lng'] }}]).addTo(map).bindPopup({{ d['name']|tojson }}).openPopup();
+</script>
+{% endblock %}

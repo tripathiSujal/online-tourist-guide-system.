@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Explore India | TouristGuide{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <span class="eyebrow">YOUR NEXT STORY STARTS HERE</span>
+    <h1>Find your <em>somewhere.</em></h1>
+    <p>Discover India's unforgettable places, plan a trip that fits your budget, and turn ideas into an itinerary.</p>
+    <form action="{{ url_for('destinations') }}" class="search">
+      <span class="search-mark">⌕</span>
+      <input name="q" placeholder="Try Goa, forts, mountains..." aria-label="Search destinations">
+      <button class="btn">Explore places <span>↗</span></button>
+    </form>
+    <div class="hero-meta"><span>✦ 39+ places to explore</span><span>◉ Budget-aware planning</span><span>⌖ Interactive maps</span></div>
+  </div>
+  <div class="hero-art" aria-label="Illustration of a mountain and sun">
+    <div class="sun"></div><div class="mountain mountain-back"></div><div class="mountain mountain-front"></div>
+    <div class="art-label"><span>THE INDIA EDIT</span><b>Take the scenic route.</b></div>
+  </div>
+</section>
+<section class="section-heading">
+  <div><span class="eyebrow dark-eyebrow">CURATED FOR CURIOUS TRAVELLERS</span><h2>Popular destinations</h2><p>Start with places travellers love, then find your own route.</p></div>
+  <a class="text-link" href="{{ url_for('destinations') }}">Explore all destinations ↗</a>
+</section>
+<div class="grid">{% for d in top %}{% include "_card.html" %}{% endfor %}</div>
+<section class="planner-banner">
+  <div><span class="eyebrow">TRAVEL YOUR WAY</span><h2>Big memories. A budget that makes sense.</h2><p>Filter by destination type and estimated daily spend before you plan.</p></div>
+  <a class="btn btn-light" href="{{ url_for('destinations') }}">Plan a trip ↗</a>
+</section>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Explore destinations | TouristGuide{% endblock %}
+{% block content %}
+<section class="page-intro">
+  <span class="eyebrow dark-eyebrow">THE DESTINATION FINDER</span>
+  <h1>Explore India, <em>your way.</em></h1>
+  <p>Search by place, city, state or experience. Use the filters to find options that fit your trip budget.</p>
+</section>
+<form class="filter-panel" method="get">
+  <div class="filter-field search-field"><label for="q">Search destinations</label><input id="q" name="q" value="{{ q }}" placeholder="Name, city, state or activity"></div>
+  <div class="filter-field"><label for="category">Experience</label><select id="category" name="category"><option value="">All experiences</option>{% for c in CATEGORIES %}<option value="{{ c }}" {{ 'selected' if c == cat else '' }}>{{ ICONS[c] }} {{ c }}</option>{% endfor %}</select></div>
+  <div class="filter-field"><label for="state">State / region</label><select id="state" name="state"><option value="">All states</option>{% for s in states %}<option value="{{ s }}" {{ 'selected' if s == state else '' }}>{{ s }}</option>{% endfor %}</select></div>
+  <div class="filter-field budget-field"><label>Estimated budget per person / day (₹)</label><div class="budget-inputs"><input type="number" name="min_budget" value="{{ min_budget }}" placeholder="Min" min="0" aria-label="Minimum daily budget"><span>to</span><input type="number" name="max_budget" value="{{ max_budget }}" placeholder="Max" min="0" aria-label="Maximum daily budget"></div></div>
+  <div class="filter-field"><label for="sort">Sort results</label><select id="sort" name="sort"><option value="popularity" {{ 'selected' if sort == 'popularity' else '' }}>Most popular</option><option value="budget" {{ 'selected' if sort == 'budget' else '' }}>Lowest budget first</option><option value="name" {{ 'selected' if sort == 'name' else '' }}>Name A–Z</option></select></div>
+  <div class="filter-actions"><button class="btn">Apply filters ↗</button><a class="reset-link" href="{{ url_for('destinations') }}">Reset</a></div>
+</form>
+<div class="results-heading"><p><b>{{ rows|length }}</b> destination(s) found</p><span class="muted">Daily budgets are estimates; actual costs vary by season and travel style.</span></div>
+<div class="grid">{% for d in rows %}{% include "_card.html" %}{% else %}<div class="empty-state"><span>⌖</span><h3>No destinations match these filters</h3><p>Try a wider budget range or reset your filters.</p><a class="btn" href="{{ url_for('destinations') }}">Show all destinations</a></div>{% endfor %}</div>
+{% endblock %}

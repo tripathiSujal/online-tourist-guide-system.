@@ -1,0 +1,13 @@
+<a class="card" href="{{ url_for('destination', did=d['id']) }}">
+  <div class="card-top cat-{{ d['category'] }}">
+    <span class="card-emoji">{{ ICONS.get(d['category'], '📍') }}</span><span class="card-category">{{ d['category'] }}</span>
+    <span class="card-arrow">↗</span>
+  </div>
+  <div class="card-body">
+    <p class="card-location">⌖ {{ d['city'] }}, {{ d['state'] }}</p>
+    <h3>{{ d['name'] }}</h3>
+    <p class="card-description">{{ d['description'] }}</p>
+    <div class="card-bottom"><span><small>FROM</small><b>₹{{ '{:,}'.format(d['budget_per_day']|int) }}<small>/ person / day</small></b></span>
+      {% if d['avg_rating'] %}<span class="rating">★ {{ d['avg_rating'] }}</span>{% else %}<span class="rating muted">Explore ↗</span>{% endif %}</div>
+  </div>
+</a>

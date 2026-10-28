@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ 'Edit' if d else 'Add' }} destination</h2>
+<form method="post" class="admin-form">
+  <input name="name" placeholder="Name" value="{{ d['name'] if d }}" required>
+  <input name="city" placeholder="City" value="{{ d['city'] if d }}" required>
+  <input name="state" placeholder="State" value="{{ d['state'] if d }}" required>
+  <select name="category">{% for c in CATEGORIES %}<option {{ 'selected' if d and d['category'] == c }}>{{ c }}</option>{% endfor %}</select>
+  <textarea name="description" rows="4" placeholder="Description">{{ d['description'] if d }}</textarea>
+  <input name="best_time" placeholder="Best time (e.g. Oct - Mar)" value="{{ d['best_time'] if d }}">
+  <input type="number" name="budget_per_day" placeholder="Budget per day (₹)" value="{{ d['budget_per_day'] if d }}" required>
+  <input type="number" step="any" name="lat" placeholder="Latitude" value="{{ d['lat'] if d }}" required>
+  <input type="number" step="any" name="lng" placeholder="Longitude" value="{{ d['lng'] if d }}" required>
+  <input type="number" name="popularity" placeholder="Popularity 1-100" value="{{ d['popularity'] if d else 50 }}">
+  <button class="btn">Save</button>
+</form>
+{% endblock %}

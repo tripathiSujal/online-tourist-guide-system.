@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}My Itinerary{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endblock %}
+{% block content %}
+<h2>My Trip Itinerary</h2>
+{% if not items %}
+  <p>Nothing here yet. <a href="{{ url_for('destinations') }}">Browse destinations</a> and add some.</p>
+{% else %}
+<div class="detail">
+  <div>
+    {% for day, stops in days.items() %}
+      <h3>Day {{ day }}</h3>
+      {% for s in stops %}
+        <div class="review row">
+          <span>{{ ICONS.get(s['category'], '📍') }} <a href="{{ url_for('destination', did=s['id']) }}">{{ s['name'] }}</a>
+            <span class="muted">· ₹{{ s['budget_per_day'] }}/person</span></span>
+          <form method="post" action="{{ url_for('itinerary_remove', item_id=s['item_id']) }}"><button class="btn small danger">Remove</button></form>
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+  <div>
+    <div class="panel">
+      <h3>Budget estimator</h3>
+      <form class="inline"><label>Travellers
+        <input type="number" name="travellers" value="{{ travellers }}" min="1" style="width:70px"></label>
+        <button class="btn small">Update</button></form>
+      <p>Per person: <b>₹{{ per_person }}</b></p>
+      <p>Total for {{ travellers }}: <b class="big">₹{{ total }}</b></p>
+      <p class="muted">Route distance (straight-line): <b>{{ total_km }} km</b></p>
+      {% for a, b, km in legs %}<p class="muted small-t">{{ a }} → {{ b }}: {{ km }} km</p>{% endfor %}
+    </div>
+    <div id="map"></div>
+  </div>
+</div>
+<script>
+  var pts = {{ pts | tojson }};
+  var names = {{ names | tojson }};
+  var map = L.map('map');
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OpenStreetMap'}).addTo(map);
+  pts.forEach(function (p, i) { L.marker(p).addTo(map).bindPopup((i + 1) + '. ' + names[i]); });
+  L.polyline(pts, {color: '#0d9488'}).addTo(map);
+  map.fitBounds(pts, {padding: [30, 30], maxZoom: 10});
+</script>
+{% endif %}
+{% endblock %}

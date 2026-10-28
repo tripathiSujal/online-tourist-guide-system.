@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+<div class="stats">
+  {% for k, v in stats.items() %}<div class="panel"><div class="big">{{ v }}</div><span class="muted">{{ k|capitalize }}</span></div>{% endfor %}
+</div>
+<div class="row"><h3>Destinations</h3><a class="btn small" href="{{ url_for('admin_destination') }}">+ Add destination</a></div>
+<div class="table-wrap"><table>
+  <tr><th>Name</th><th>City</th><th>Category</th><th>₹/day</th><th></th></tr>
+  {% for d in dests %}
+  <tr><td>{{ d['name'] }}</td><td>{{ d['city'] }}</td><td>{{ d['category'] }}</td><td>{{ d['budget_per_day'] }}</td>
+    <td class="actions"><a class="btn small" href="{{ url_for('admin_destination', did=d['id']) }}">Edit</a>
+      <form method="post" action="{{ url_for('admin_delete_destination', did=d['id']) }}" onsubmit="return confirm('Delete this destination?')"><button class="btn small danger">Delete</button></form></td></tr>
+  {% endfor %}
+</table></div>
+<h3>Latest reviews (moderation)</h3>
+<div class="table-wrap"><table>
+  <tr><th>User</th><th>Place</th><th>Rating</th><th>Comment</th><th></th></tr>
+  {% for r in reviews %}
+  <tr><td>{{ r['uname'] }}</td><td>{{ r['dname'] }}</td><td>{{ r['rating'] }}⭐</td><td>{{ r['comment'] }}</td>
+    <td><form method="post" action="{{ url_for('admin_delete_review', rid=r['id']) }}"><button class="btn small danger">Remove</button></form></td></tr>
+  {% else %}<tr><td colspan="5" class="muted">No reviews yet.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}
